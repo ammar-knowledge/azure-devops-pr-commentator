@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/vss-extension",
+  "manifestVersion": 1,
+  "id": "pr-commentator",
+  "name": "PR commentator",
+  "version": "0.0.1",
+  "publisher": "xerillio",
+  "targets": [{
+    "id": "Microsoft.VisualStudio.Services"
+  }],
+  "description": "TODO",
+  "categories": [
+    "Azure Pipelines",
+    "Azure Repos"
+  ],
+  "files": [{
+    "path": "task"
+  }],
+  "contributions": [{
+    "id": "task",
+    "type": "ms.vss-distributed-task.task",
+    "targets": [
+      "ms.vss-distributed-task.tasks"
+    ],
+    "properties": {
+      "name": "task"
+    }
+  }]
+}

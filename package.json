@@ -1,0 +1,47 @@
+{
+  "name": "azure-devops-pr-commentator",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "package": "npm-run-all package:prepare package:copy-to-dist package:install-deps package:create",
+    "package-dev": "npm-run-all package:prepare package:copy-to-dist package:install-deps package:create-dev",
+    "package:prepare": "rimraf ./dist && tsc",
+    "package:copy-to-dist": "copyfiles vss-extension*.json LICENSE.md README.md \"./task/**\" ./dist && copyfiles package.json package-lock.json ./dist/task && copyfiles -u 1 \"./bin/**/*.js\" ./dist/task",
+    "package:install-deps": "cd ./dist/task && npm clean-install --omit=dev --ignore-scripts",
+    "package:create": "npx tfx extension create -r ./dist --manifest-globs vss-extension.json",
+    "package:create-dev": "npx tfx extension create -r ./dist --manifest-globs vss-extension.json --overrides-file vss-extension.dev.json --share-with xerillio",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "eslint . --ext .ts -f friendly",
+    "lint-fix": "eslint . --ext .ts -f friendly --fix"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.14.0",
+    "@types/q": "^1.5.5",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.34.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-formatter-friendly": "github:Xerillio/eslint-friendly-formatter#5b12360ea34f934941a169f48dec358befc4dcb6",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "husky": "^8.0.0",
+    "mocha": "^10.2.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^4.1.2",
+    "sync-request": "^6.1.0",
+    "tfx-cli": "^0.12.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "azure-devops-node-api": "^12.0.0",
+    "azure-pipelines-task-lib": "^4.2.0",
+    "minimatch": "^6.2.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // https://github.com/microsoft/azure-pipelines-tasks/blob/master/docs/debugging.md#debugging-typescript-tasks-in-vs-code
+      "name": "Launch task",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/index.js",
+      "cwd": "${workspaceFolder}/bin/",
+      "env": {
+        "NODE_ENV": "development",
+        "SYSTEM_COLLECTIONURI": "https://dev.azure.com/xerillio",
+        // Repo name: "ado-test"
+        "BUILD_REPOSITORY_ID": "b8605005-8f89-4faa-bbcc-016d2dac21ef",
+        // PR name: "Commit with many files"
+        "SYSTEM_PULLREQUEST_PULLREQUESTID": "6",
+        "INPUT_PAT": "${env:AzureDevOps_PAT}",
+        "INPUT_filePattern": "**/spam*.txt",
+        "INPUT_comment": "This is a comment"
+      },
+      "sourceMaps": true
+    }
+  ]
+}
