@@ -14,7 +14,7 @@
     "Azure Repos"
   ],
   "files": [{
-    "path": "task"
+    "path": ".task"
   }],
   "contributions": [{
     "id": "task",
@@ -23,7 +23,7 @@
       "ms.vss-distributed-task.tasks"
     ],
     "properties": {
-      "name": "task"
+      "name": ".task"
     }
   }]
 }
