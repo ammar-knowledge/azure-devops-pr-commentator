@@ -1,75 +1,75 @@
-import { getInput, getInputRequired, getVariable, setResult, TaskResult } from "azure-pipelines-task-lib/task";
-import * as DevOps from "azure-devops-node-api";
-import { type IGitApi } from "azure-devops-node-api/GitApi";
+import { getInputRequired, setResult, TaskResult } from "azure-pipelines-task-lib/task";
 import * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
+import { type IGitApi } from "azure-devops-node-api/GitApi";
 import { minimatch } from "minimatch";
+import { createGitClient, getRequiredVariable } from "./azure-helpers";
+import { hasId } from "./type-guards";
 
 class TaskRunner {
+    private readonly repoId: string;
+    private readonly prId: number;
+    private readonly comment: string;
+    private readonly filePattern: string;
+
+    constructor(private readonly client: IGitApi) {
+        this.repoId = getRequiredVariable("BUILD_REPOSITORY_ID");
+        this.prId = parseInt(getRequiredVariable("SYSTEM_PULLREQUEST_PULLREQUESTID"));
+        this.comment = getInputRequired("comment");
+        this.filePattern = getInputRequired("filePattern");
+    }
+
     public run = async(): Promise<void> => {
         try {
-            const client = await createGitClient();
+            let resultMessage = "No comment added";
 
-            const repoId = getRequiredVariable("BUILD_REPOSITORY_ID");
-            const prId = parseInt(getRequiredVariable("SYSTEM_PULLREQUEST_PULLREQUESTID"));
-            const comment = getInputRequired("comment");
-            const filePattern = getInputRequired("filePattern");
-
-            const iterations = await client.getPullRequestIterations(repoId, prId);
-            const lastIterationId = iterations
-                .sort((i1, i2) => (i1.id ?? 0) - (i2.id ?? 0))
-                .slice(-1)[0].id ?? 0;
-            let changes: GitInterfaces.GitPullRequestIterationChanges;
-            let matchingChange: GitInterfaces.GitPullRequestChange | undefined;
-            do {
-                changes = await client.getPullRequestIterationChanges(repoId, prId, lastIterationId);
-                matchingChange = changes.changeEntries?.find(
-                    entry => minimatch(entry.item?.path ?? "", filePattern));
-            } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
-
+            const matchingChange = await this.getFirstMatchingChange();
             if (matchingChange !== undefined) {
-                const thread: GitInterfaces.GitPullRequestCommentThread = {
-                    comments: [{
-                        content: comment,
-                        commentType: GitInterfaces.CommentType.System
-                    }],
-                    status: GitInterfaces.CommentThreadStatus.Active
-                };
-                await client.createThread(thread, repoId, prId);
-
-                setResult(TaskResult.Succeeded, "One comment was added");
-                return;
+                await this.createThread();
+                resultMessage = "One comment was added";
             }
-            setResult(TaskResult.Succeeded, "No comment added");
-            return;
+
+            setResult(TaskResult.Succeeded, resultMessage);
         } catch (err: any) {
             console.error(err, err.stack);
             setResult(TaskResult.Failed, err.message);
         }
     };
-}
 
-async function createGitClient(): Promise<IGitApi> {
-    let credHandler;
-    const pat = getInput("PAT");
-    if (pat !== undefined) {
-        credHandler = DevOps.getPersonalAccessTokenHandler(pat);
-    } else {
-        const sysToken = getRequiredVariable("SYSTEM_ACCESSTOKEN",
-            "No valid authentication type found");
-        credHandler = DevOps.getBearerHandler(sysToken);
-    }
-    const collectionUri = getRequiredVariable("SYSTEM_COLLECTIONURI");
-    return await new DevOps.WebApi(collectionUri, credHandler).getGitApi();
-}
+    private readonly getLastIterationId = async(): Promise<number> => {
+        const iterations = await this.client.getPullRequestIterations(this.repoId, this.prId);
+        return iterations
+            .filter(hasId)
+            .sort((i1, i2) => i1.id - i2.id)
+            .slice(-1)[0].id;
+    };
 
-function getRequiredVariable(variable: string, errorMsg?: string): string {
-    const value = getVariable(variable);
-    if (value === undefined) {
-        const msg = errorMsg ?? `Environment variable '${variable}' is required but no value was found`;
-        throw new Error(msg);
-    }
-    return value;
+    private readonly getFirstMatchingChange = async(): Promise<GitInterfaces.GitPullRequestChange | undefined> => {
+        const lastIterationId = await this.getLastIterationId();
+        let changes: GitInterfaces.GitPullRequestIterationChanges;
+        let matchingChange: GitInterfaces.GitPullRequestChange | undefined;
+        do {
+            changes = await this.client.getPullRequestIterationChanges(this.repoId, this.prId, lastIterationId);
+            matchingChange = changes.changeEntries?.find(
+                entry => minimatch(entry.item?.path ?? "", this.filePattern));
+        } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
+        return matchingChange;
+    };
+
+    private readonly createThread = async(): Promise<void> => {
+        const thread: GitInterfaces.GitPullRequestCommentThread = {
+            comments: [{
+                content: this.comment,
+                commentType: GitInterfaces.CommentType.System
+            }],
+            status: GitInterfaces.CommentThreadStatus.Active
+        };
+
+        await this.client.createThread(thread, this.repoId, this.prId);
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-new TaskRunner().run();
+(async function() {
+    const runner = new TaskRunner(await createGitClient());
+    await runner.run();
+})();
