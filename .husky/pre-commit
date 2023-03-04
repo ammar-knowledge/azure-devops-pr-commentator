@@ -2,3 +2,21 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npm run lint
+
+# Warn about files you typically don't want to check in
+files=(
+    "vss-extension.dev.json"
+    "task.dev.json"
+)
+result=$(git diff-index --cached --name-status HEAD "${files[@]}")
+if [[ "${result}" != "" ]]
+then
+    YELLOW=$(tput setaf 3)
+    RED=$(tput setaf 1)
+    NORMAL=$(tput sgr0)
+    printf "${YELLOW}You are about to check in changes to the following files:\n"
+    printf "${RED}${result}\n\n"
+    printf "${YELLOW}These files are for local development and changes here are typically not meant to be checked in.\n"
+    printf "If you intent to check in these changes anyway, run:\n${RED}    git commit --no-verify\n\n${NORMAL}"
+    exit 1
+fi
