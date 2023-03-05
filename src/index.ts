@@ -15,7 +15,7 @@ class TaskRunner {
         this.repoId = getRequiredVariable("BUILD_REPOSITORY_ID");
         this.prId = parseInt(getRequiredVariable("SYSTEM_PULLREQUEST_PULLREQUESTID"));
         this.comment = getInputRequired("comment");
-        this.filePattern = getInputRequired("filePattern");
+        this.filePattern = getInputRequired("fileGlob");
     }
 
     public run = async(): Promise<void> => {

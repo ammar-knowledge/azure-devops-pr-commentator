@@ -15,6 +15,13 @@
     "instanceNameFormat": "PR Commentator",
     "inputs": [
         {
+            "name": "PAT",
+            "type": "string",
+            "label": "Personal Access Token",
+            "defaultValue": "",
+            "required": false
+        },
+        {
             "name": "comment",
             "type": "string",
             "label": "Comment",
@@ -23,19 +30,44 @@
             "helpMarkDown": "The content of the comment."
         },
         {
-            "name": "filePattern",
+            "name": "fileGlob",
             "type": "string",
             "label": "File glob",
             "defaultValue": "",
-            "required": true,
-            "helpMarkDown": "The comment is added if the PR contains a file matching this glob expression."
+            "required": false,
+            "helpMarkDown": "The path of any file in the pull request must match this glob expression."
         },
         {
-            "name": "PAT",
+            "name": "commitExpr",
             "type": "string",
-            "label": "Personal Access Token",
+            "label": "Commit message expression",
             "defaultValue": "",
-            "required": false
+            "required": false,
+            "helpMarkDown": "(Not implemented) Any commit in the pull request must **not** match this expression."
+        },
+        {
+            "name": "targetBranch",
+            "type": "string",
+            "label": "Target branch name expression",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "(Not implemented) The target branch name must match this regular expression."
+        },
+        {
+            "name": "sourceBranch",
+            "type": "string",
+            "label": "File glob",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "(Not implemented) The source branch name must match this regular expression."
+        },
+        {
+            "name": "autoResolve",
+            "type": "boolean",
+            "label": "Auto-resolve comments",
+            "defaultValue": false,
+            "required": false,
+            "helpMarkDown": "(Not implemented) The source branch name must match this regular expression."
         }
     ],
     "execution": {
