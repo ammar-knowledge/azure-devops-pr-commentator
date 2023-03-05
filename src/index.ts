@@ -1,21 +1,23 @@
-import { getInputRequired, setResult, TaskResult } from "azure-pipelines-task-lib/task";
+import { setResult, TaskResult } from "azure-pipelines-task-lib/task";
 import * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
 import { type IGitApi } from "azure-devops-node-api/GitApi";
 import { minimatch } from "minimatch";
-import { createGitClient, getRequiredVariable } from "./azure-helpers";
+import { createGitClient } from "./azure-helpers";
 import { hasId } from "./type-guards";
+import { Inputs } from "./inputs";
+import { Variables } from "./variables";
 
 class TaskRunner {
     private readonly repoId: string;
     private readonly prId: number;
-    private readonly comment: string;
-    private readonly filePattern: string;
 
-    constructor(private readonly client: IGitApi) {
-        this.repoId = getRequiredVariable("BUILD_REPOSITORY_ID");
-        this.prId = parseInt(getRequiredVariable("SYSTEM_PULLREQUEST_PULLREQUESTID"));
-        this.comment = getInputRequired("comment");
-        this.filePattern = getInputRequired("fileGlob");
+    constructor(
+        private readonly client: IGitApi,
+        private readonly inputs: Inputs,
+        vars: Variables
+    ) {
+        this.repoId = vars.repositoryId;
+        this.prId = vars.pullRequestId;
     }
 
     public run = async(): Promise<void> => {
@@ -50,7 +52,7 @@ class TaskRunner {
         do {
             changes = await this.client.getPullRequestIterationChanges(this.repoId, this.prId, lastIterationId);
             matchingChange = changes.changeEntries?.find(
-                entry => minimatch(entry.item?.path ?? "", this.filePattern));
+                entry => minimatch(entry.item?.path ?? "", this.inputs.fileGlob));
         } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
         return matchingChange;
     };
@@ -58,7 +60,7 @@ class TaskRunner {
     private readonly createThread = async(): Promise<void> => {
         const thread: GitInterfaces.GitPullRequestCommentThread = {
             comments: [{
-                content: this.comment,
+                content: this.inputs.comment,
                 commentType: GitInterfaces.CommentType.System
             }],
             status: GitInterfaces.CommentThreadStatus.Active
@@ -70,6 +72,9 @@ class TaskRunner {
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async function() {
-    const runner = new TaskRunner(await createGitClient());
+    const inputs = new Inputs();
+    const vars = new Variables();
+    const client = await createGitClient(inputs, vars);
+    const runner = new TaskRunner(client, inputs, vars);
     await runner.run();
 })();
