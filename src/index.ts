@@ -1,11 +1,10 @@
 import { setResult, TaskResult } from "azure-pipelines-task-lib/task";
 import * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
 import { type IGitApi } from "azure-devops-node-api/GitApi";
-import { minimatch } from "minimatch";
 import { createGitClient } from "./azure-helpers";
-import { hasId } from "./type-guards";
 import { Inputs } from "./inputs";
 import { Variables } from "./variables";
+import { validateAll } from "./validators/validator";
 
 class TaskRunner {
     private readonly repoId: string;
@@ -24,8 +23,9 @@ class TaskRunner {
         try {
             let resultMessage = "No comment added";
 
-            const matchingChange = await this.getFirstMatchingChange();
-            if (matchingChange !== undefined) {
+            const result = await validateAll(this.client, this.inputs, this.repoId, this.prId);
+
+            if (result.conditionMet) {
                 await this.createThread();
                 resultMessage = "One comment was added";
             }
@@ -35,26 +35,6 @@ class TaskRunner {
             console.error(err, err.stack);
             setResult(TaskResult.Failed, err.message);
         }
-    };
-
-    private readonly getLastIterationId = async(): Promise<number> => {
-        const iterations = await this.client.getPullRequestIterations(this.repoId, this.prId);
-        return iterations
-            .filter(hasId)
-            .sort((i1, i2) => i1.id - i2.id)
-            .slice(-1)[0].id;
-    };
-
-    private readonly getFirstMatchingChange = async(): Promise<GitInterfaces.GitPullRequestChange | undefined> => {
-        const lastIterationId = await this.getLastIterationId();
-        let changes: GitInterfaces.GitPullRequestIterationChanges;
-        let matchingChange: GitInterfaces.GitPullRequestChange | undefined;
-        do {
-            changes = await this.client.getPullRequestIterationChanges(this.repoId, this.prId, lastIterationId);
-            matchingChange = changes.changeEntries?.find(
-                entry => minimatch(entry.item?.path ?? "", this.inputs.fileGlob));
-        } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
-        return matchingChange;
     };
 
     private readonly createThread = async(): Promise<void> => {
