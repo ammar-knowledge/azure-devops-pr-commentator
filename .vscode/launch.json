@@ -3,6 +3,7 @@
   "configurations": [
     {
       // https://github.com/microsoft/azure-pipelines-tasks/blob/master/docs/debugging.md#debugging-typescript-tasks-in-vs-code
+      // The settings below are provided as an example with valid inputs etc. You can modify this for your local development.
       "name": "Launch task",
       "type": "node",
       "request": "launch",
@@ -16,7 +17,7 @@
         // PR name: "Commit with many files"
         "SYSTEM_PULLREQUEST_PULLREQUESTID": "6",
         "INPUT_PAT": "${env:AzureDevOps_PAT}",
-        "INPUT_filePattern": "**/spam*.txt",
+        "INPUT_fileGlob": "**/spam*.txt",
         "INPUT_comment": "This is a comment"
       },
       "sourceMaps": true
