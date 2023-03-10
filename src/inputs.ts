@@ -1,4 +1,5 @@
 import { getBoolInput, getInput, getInputRequired } from "azure-pipelines-task-lib";
+import md5 from "md5";
 
 export class Inputs {
     public get pat(): string | undefined {
@@ -27,5 +28,15 @@ export class Inputs {
 
     public get autoResolve(): boolean | undefined {
         return getBoolInput("autoResolve");
+    }
+
+    /** Returns an MD5 hash of the combined conditional inputs */
+    public get hashedConditions(): string {
+        const combinedConditions =
+            (this.fileGlob ?? "") +
+            (this.commitExpr ?? "") +
+            (this.targetBranch ?? "") +
+            (this.sourceBranch ?? "");
+        return md5(combinedConditions);
     }
 }
