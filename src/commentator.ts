@@ -18,6 +18,9 @@ export class Commentator {
 
         if (existingThread === undefined) {
             await this.createNewThread(commentHash, repositoryId, prId);
+            console.log(`New comment created with the hash: ${commentHash}`);
+        } else {
+            console.log(`A comment already exists with the hash: ${commentHash}`);
         }
 
         return commentHash;

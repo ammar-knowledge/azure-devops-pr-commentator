@@ -14,6 +14,7 @@ export class FileGlobValidator implements IValidator {
     public readonly check = async(repositoryId: string, prId: number): Promise<IValidationResult> => {
         const matchingChange = await this.getFirstMatchingChange(repositoryId, prId);
         if (matchingChange !== undefined) {
+            console.log("Found one or more matches for the glob expression");
             return {
                 conditionMet: true,
                 context: {
@@ -22,6 +23,7 @@ export class FileGlobValidator implements IValidator {
             };
         }
 
+        console.log("No match found for the glob expression");
         return { conditionMet: false };
     };
 
