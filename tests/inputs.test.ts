@@ -1,6 +1,6 @@
-import { testInputs } from "./rewire";
+import { rewiremock, rewireAll, instantiate, testInputs } from "./rewire";
 import { expect } from "chai";
-import { Inputs } from "../src/inputs";
+import { type Inputs } from "../src/inputs";
 
 const patInput = "PAT";
 const commentInput = "comment";
@@ -18,6 +18,13 @@ const conditionalInputs = [
 ];
 
 describe("Inputs", () => {
+    before(rewireAll);
+    after(rewiremock.clear);
+
+    const createSut = async(): Promise<Inputs> => await instantiate(
+        async() => (await import("../src/inputs")).Inputs
+    );
+
     beforeEach(() => {
         testInputs.clear();
 
@@ -30,8 +37,8 @@ describe("Inputs", () => {
         testInputs.set(autoResolveInput, true);
     });
 
-    it("should return the specified task inputs", () => {
-        const sut = new Inputs();
+    it("should return the specified task inputs", async() => {
+        const sut = await createSut();
 
         expect(sut.pat).to.equal("test PAT");
         expect(sut.comment).to.equal("test comment");
@@ -43,10 +50,11 @@ describe("Inputs", () => {
     });
 
     describe("#hashedConditions", () => {
-        it("should be unique when conditional inputs change", () => {
-            const sut = new Inputs();
+        it("should be unique when conditional inputs change", async() => {
+            const sut = await createSut();
 
             for (const input of conditionalInputs) {
+                testInputs.clear();
                 testInputs.set(input, `${input} - value 1`);
                 const hash1 = sut.hashedConditions;
 
@@ -57,8 +65,9 @@ describe("Inputs", () => {
             }
         });
 
-        it("should stay unchanged when non-conditional inputs change", () => {
-            const sut = new Inputs();
+        it("should stay unchanged when non-conditional inputs change", async() => {
+            const sut = await createSut();
+
             const firstHash = sut.hashedConditions;
             const hashes: string[] = [firstHash];
 
