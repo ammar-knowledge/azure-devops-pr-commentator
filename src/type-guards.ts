@@ -1,7 +1,7 @@
 import type * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
 
 export function hasId<T extends { id?: number }>(obj: T): obj is T & IHasId<number> {
-    return obj?.id !== undefined;
+    return obj.id !== undefined;
 }
 
 export interface IHasId<TId> {
