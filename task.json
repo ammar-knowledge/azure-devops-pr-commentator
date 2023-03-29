@@ -19,7 +19,8 @@
             "type": "string",
             "label": "Personal Access Token",
             "defaultValue": "",
-            "required": false
+            "required": false,
+            "helpMarkDown": "Optional PAT used instead of the system access token to access the Azure API."
         },
         {
             "name": "comment",
@@ -27,7 +28,7 @@
             "label": "Comment",
             "defaultValue": "",
             "required": true,
-            "helpMarkDown": "The content of the comment."
+            "helpMarkDown": "The content of the comment to be added."
         },
         {
             "name": "fileGlob",
@@ -35,7 +36,7 @@
             "label": "File glob",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "The path of any file in the pull request must match this glob expression."
+            "helpMarkDown": "If specified, a file in the pull request must match this glob expression for a comment to be added."
         },
         {
             "name": "commitExpr",
