@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json.schemastore.org/vss-extension",
-  "manifestVersion": 1,
-  "id": "pr-commentator-dev",
-  "public": false,
-  "name": "PR commentator - DEV",
-  "version": "0.0.1.6"
+    "$schema": "https://json.schemastore.org/vss-extension",
+    "manifestVersion": 1,
+    "id": "pr-commentator-dev",
+    "public": false,
+    "name": "Pull Request Commentator - DEV",
+    "version": "0.0.1.6"
 }

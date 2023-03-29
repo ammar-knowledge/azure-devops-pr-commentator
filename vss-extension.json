@@ -1,29 +1,67 @@
 {
-  "$schema": "https://json.schemastore.org/vss-extension",
-  "manifestVersion": 1,
-  "id": "pr-commentator",
-  "name": "PR commentator",
-  "version": "0.0.1",
-  "publisher": "xerillio",
-  "targets": [{
-    "id": "Microsoft.VisualStudio.Services"
-  }],
-  "description": "TODO",
-  "categories": [
-    "Azure Pipelines",
-    "Azure Repos"
-  ],
-  "files": [{
-    "path": ".task"
-  }],
-  "contributions": [{
-    "id": "task",
-    "type": "ms.vss-distributed-task.task",
+    "$schema": "https://json.schemastore.org/vss-extension",
+    "manifestVersion": 1,
+    "id": "pr-commentator",
+    "public": true,
+    "name": "Pull Request Commentator",
+    "version": "0.0.1",
+    "publisher": "xerillio",
     "targets": [
-      "ms.vss-distributed-task.tasks"
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
     ],
-    "properties": {
-      "name": ".task"
-    }
-  }]
+    "tags": ["Azure Pipelines", "Pull Request", "Comment", "Automation", "Open Source"],
+    "icons": {
+        "default": "images/icon.png"
+    },
+    "screenshots": [
+        {
+            "path": "images/automated-comment.jpg"
+        }
+    ],
+    "content": {
+        "details": {
+            "path": "marketplace-overview.md"
+        },
+        "license": {
+            "path": "LICENSE.md"
+        }
+    },
+    "links": {
+        "license": {
+            "uri": "https://github.com/Xerillio/azure-devops-pr-commentator/blob/main/LICENSE.md"
+        },
+        "support": {
+            "uri": "https://github.com/Xerillio/azure-devops-pr-commentator/issues"
+        },
+        "privacypolicy": {
+            "uri": "https://github.com/Xerillio/azure-devops-pr-commentator/blob/main/PRIVACY.md"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/Xerillio/azure-devops-pr-commentator"
+    },
+    "description": "A pipeline task that allows you to automatically post a comment on a pull request if given criteria are met.",
+    "categories": ["Azure Pipelines", "Azure Repos"],
+    "files": [
+        {
+            "path": ".task"
+        },
+        {
+            "path": "images",
+            "addressable": true
+        }
+    ],
+    "contributions": [
+        {
+            "id": "task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": ["ms.vss-distributed-task.tasks"],
+            "properties": {
+                "name": ".task"
+            }
+        }
+    ]
 }
