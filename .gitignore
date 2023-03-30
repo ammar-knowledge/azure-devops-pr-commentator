@@ -2,3 +2,4 @@ node_modules
 bin
 .task
 .nyc_output
+.coverage

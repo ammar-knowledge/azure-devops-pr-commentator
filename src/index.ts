@@ -41,9 +41,13 @@ class TaskRunner {
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async function() {
-    const inputs = new Inputs();
-    const vars = new Variables();
-    const client = await createGitClient(inputs, vars);
-    const runner = new TaskRunner(client, inputs, vars);
-    await runner.run();
+    try {
+        const inputs = new Inputs();
+        const vars = new Variables();
+        const client = await createGitClient(inputs, vars);
+        const runner = new TaskRunner(client, inputs, vars);
+        await runner.run();
+    } catch (err: any) {
+        console.error(err, err.stack);
+    }
 })();

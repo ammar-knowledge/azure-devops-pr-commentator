@@ -59,14 +59,13 @@ The pre-commit hook installed with [husky](https://typicode.github.io/husky/#/) 
 
 Now, there are a few bits and pieces that are good to know once you start coding. Below is a list of some of the most relevant things:
 
-* [`launch.json`](../.vscode/launch.json): If you use VSCode, there's already some preconfigured launch settings so you can run and debug the task locally. You might want to change the environment variables to match your own DevOps project and create a [Personal Access Token](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) and add it to your machine's environment variables with the name `AzureDevOps_PAT`. Consider the `launch.json` a template for you.
+* [`launch.json`](../.vscode/launch.json): If you use VSCode, there's already some preconfigured launch settings so you can run and debug the task locally as well as debug tests. You might want to change the environment variables to match your own DevOps project and create a [Personal Access Token](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) and add it to your machine's environment variables with the name `AzureDevOps_PAT`. Consider the `launch.json` a template for you. For more info on how to debug, check [Debugging in VS Code](https://code.visualstudio.com/Docs/editor/debugging).
 * NPM scripts. In the [`package.json`](../package.json) file you'll find a few scripts to help make your development workflow easier. You can run these with `npm run <script-name>`:
 
   | Script name           | Description |
   | --------------------- | ----------- |
-  | `watch`               | This cleans your `/bin` folder and starts the TypeScript transpiler in watch-mode. |
-  | `test`                | Transpiles and runs all Mocha tests. |
-  | `coverage`            | Runs all tests and outputs a test coverage report. You can run `coverage-html` for a more detailed report, which you'll find in a folder at the root of the repository. |
+  | `test`                | Runs all Mocha tests. |
+  | `coverage`            | Runs all tests and outputs a test coverage report. You can run `coverage-html` for a more detailed report, which you'll find in the generated `.coverage` folder at the root of the repository. |
   | `lint` and `lint-fix` | Runs ESLint and reports linting issues found in your code and optionally fixes some of them automatically. `lint` is automatically run when you try to commit your code. |
   | `package-dev`         | When you have a version of your changes that you think is ready, this command will create an extension package (a VSIX file) which you can [publish and install](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-build-task?view=azure-devops#5-publish-your-extension) in your own DevOps project to test it. Extension and task version numbers are automatically bumped to ensure your latest package is used when publishing - even if you didn't make any code changes. You can also update [`task.dev.json`](../task.dev.json) if you e.g. want to make changes to the inputs. Make sure to add the final changes in [`task.json`](../task.json) before you commit your code. |
 
