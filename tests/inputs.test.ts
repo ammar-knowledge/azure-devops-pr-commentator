@@ -1,4 +1,4 @@
-import { rewiremock, rewireAll, instantiate, testInputs } from "./rewire";
+import { rewireAll, instantiate, testInputs, clear } from "./rewire";
 import { expect } from "chai";
 import { type Inputs } from "../src/inputs";
 
@@ -19,10 +19,10 @@ const conditionalInputs = [
 
 describe("Inputs", () => {
     before(rewireAll);
-    after(rewiremock.clear);
+    after(clear);
 
     const createSut = async(): Promise<Inputs> => await instantiate(
-        async() => (await import("../src/inputs")).Inputs
+        async() => new (await import("../src/inputs")).Inputs()
     );
 
     beforeEach(() => {

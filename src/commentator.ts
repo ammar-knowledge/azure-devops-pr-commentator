@@ -1,11 +1,11 @@
 import { type IGitApi } from "azure-devops-node-api/GitApi";
 import * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
-import { type Inputs } from "./inputs";
+import { type IInputs } from "./inputs";
 import { isAutoCommentThread } from "./type-guards";
 
 export class Commentator {
     constructor(
-        private readonly inputs: Inputs,
+        private readonly inputs: IInputs,
         private readonly client: IGitApi
     ) {}
 

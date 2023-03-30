@@ -1,10 +1,10 @@
 import { expect } from "chai";
-import { type Inputs } from "../src/inputs";
 import { Commentator } from "../src/commentator";
 import { type IGitApi } from "azure-devops-node-api/GitApi";
 import sinon, { stubInterface, type StubbedInstance } from "ts-sinon";
 import { CommentThreadStatus } from "azure-devops-node-api/interfaces/GitInterfaces";
 import { type IAutoCommentThread } from "../src/type-guards";
+import { createStubInputs } from "./stub-helper";
 
 describe("Commentator", () => {
     describe("#createComment()", () => {
@@ -117,17 +117,6 @@ describe("Commentator", () => {
         });
     });
 });
-
-const createStubInputs = (override?: Partial<Inputs>): Inputs => Object.assign({
-    comment: "test comment",
-    fileGlob: "test glob",
-    hashedConditions: "test hash",
-    pat: undefined,
-    commitExpr: undefined,
-    targetBranch: undefined,
-    sourceBranch: undefined,
-    autoResolve: undefined
-}, override);
 
 function createStubGitApi(): StubbedInstance<IGitApi> {
     const stubGitApi = stubInterface<IGitApi>();

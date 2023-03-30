@@ -1,5 +1,5 @@
 import { type IGitApi } from "azure-devops-node-api/GitApi";
-import { type Inputs } from "../inputs";
+import { type IInputs } from "../inputs";
 import { FileGlobValidator } from "./file-glob-validator";
 
 export interface IValidator {
@@ -34,6 +34,6 @@ export interface IResultContext {
  * @param prId The ID of the pull request to validate.
  * @returns An {@link IValidationResult} indicating if all conditions for creating a comment were met.
  */
-export async function validateAll(client: IGitApi, inputs: Inputs, repositoryId: string, prId: number): Promise<IValidationResult> {
+export async function validateAll(client: IGitApi, inputs: IInputs, repositoryId: string, prId: number): Promise<IValidationResult> {
     return await new FileGlobValidator(client, inputs).check(repositoryId, prId);
 }

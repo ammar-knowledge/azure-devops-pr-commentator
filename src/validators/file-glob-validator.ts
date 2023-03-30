@@ -1,18 +1,22 @@
 import { type IGitApi } from "azure-devops-node-api/GitApi";
 import type * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfaces";
 import { minimatch } from "minimatch";
-import { type Inputs } from "../inputs";
+import { type IInputs } from "../inputs";
 import { hasId } from "../type-guards";
 import { type IValidationResult, type IValidator } from "./validator";
 
 export class FileGlobValidator implements IValidator {
     constructor(
         private readonly client: IGitApi,
-        private readonly inputs: Inputs
+        private readonly inputs: IInputs
     ) { }
 
     public readonly check = async(repositoryId: string, prId: number): Promise<IValidationResult> => {
-        const matchingChange = await this.getFirstMatchingChange(repositoryId, prId);
+        if (this.inputs.fileGlob === undefined) {
+            return { conditionMet: true };
+        }
+
+        const matchingChange = await this.getFirstMatchingChange(repositoryId, prId, this.inputs.fileGlob);
         if (matchingChange !== undefined) {
             console.log("Found one or more matches for the glob expression");
             return {
@@ -27,14 +31,14 @@ export class FileGlobValidator implements IValidator {
         return { conditionMet: false };
     };
 
-    private readonly getFirstMatchingChange = async(repositoryId: string, prId: number): Promise<GitInterfaces.GitPullRequestChange | undefined> => {
+    private readonly getFirstMatchingChange = async(repositoryId: string, prId: number, fileGlob: string): Promise<GitInterfaces.GitPullRequestChange | undefined> => {
         const lastIterationId = await this.getLastIterationId(repositoryId, prId);
         let changes: GitInterfaces.GitPullRequestIterationChanges;
         let matchingChange: GitInterfaces.GitPullRequestChange | undefined;
         do {
             changes = await this.client.getPullRequestIterationChanges(repositoryId, prId, lastIterationId);
             matchingChange = changes.changeEntries?.find(
-                entry => minimatch(entry.item?.path ?? "", this.inputs.fileGlob));
+                entry => minimatch(entry.item?.path ?? "", fileGlob));
         } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
         return matchingChange;
     };

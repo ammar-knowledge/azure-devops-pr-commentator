@@ -1,4 +1,4 @@
-import { instantiate, rewireAll, rewiremock, testVariables } from "./rewire";
+import { instantiate, clear, rewireAll, testVariables } from "./rewire";
 import { expect } from "chai";
 import { type Variables } from "../src/variables";
 
@@ -9,10 +9,10 @@ const pullRequestIdVariable = "SYSTEM_PULLREQUEST_PULLREQUESTID";
 
 describe("Variables", () => {
     before(rewireAll);
-    after(rewiremock.clear);
+    after(clear);
 
     const createSut = async(): Promise<Variables> => await instantiate(
-        async() => (await import("../src/variables")).Variables
+        async() => new (await import("../src/variables")).Variables()
     );
 
     beforeEach(() => {
