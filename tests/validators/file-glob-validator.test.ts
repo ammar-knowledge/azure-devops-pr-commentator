@@ -63,6 +63,24 @@ describe("FileGlobValidator", () => {
             sinon.assert.calledTwice(stubApiClient.getPullRequestIterationChanges);
         });
 
+        it("should succeed when fileGlob matches multiple files on multiple pages", async() => {
+            const fileGlob = "/**/*";
+            const stubInputs = createStubInputs({ fileGlob });
+            const stubApiClient = createStubGitApi();
+            stubApiClient.getPullRequestIterationChanges
+                .onSecondCall().resolves(pageTwoIterationChanges());
+            const minimatchStub = sinon.stub<[string, string], boolean>()
+                .callsFake((_: string, __: string) => true);
+            setMinimatchStub(minimatchStub);
+            const sut = await createSut(stubApiClient, stubInputs);
+
+            const result = await sut.check("foo", 7357);
+
+            expect(result.conditionMet).is.true;
+            expect(result.context?.files).to.have.members(["/foo/bar.txt", "/baz/qux.txt"]);
+            sinon.assert.calledTwice(stubApiClient.getPullRequestIterationChanges);
+        });
+
         it("should fail when fileGlob matches no files", async() => {
             const fileGlob = "/match/nothing";
             const stubInputs = createStubInputs({ fileGlob });
@@ -86,7 +104,7 @@ function createStubGitApi(): StubbedInstance<IGitApi> {
         .resolves([{ id: 1 }]);
     stubGitApi.getPullRequestIterationChanges
         .onFirstCall().resolves(pageOneIterationChanges())
-        .onSecondCall().throws("The test was not supposed to get second page");
+        .onSecondCall().resolves({});
     return stubGitApi;
 }
 

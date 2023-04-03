@@ -21,21 +21,16 @@ class TaskRunner {
     }
 
     public run = async(): Promise<void> => {
-        try {
-            let resultMessage = "One or more conditions were not met";
+        let resultMessage = "One or more conditions were not met";
 
-            const result = await validateAll(this.client, this.inputs, this.repoId, this.prId);
+        const result = await validateAll(this.client, this.inputs, this.repoId, this.prId);
 
-            if (result.conditionMet) {
-                const commentHash = await this.commentator.createComment(this.repoId, this.prId);
-                resultMessage = `Conditions succesfully met. Comment hash: ${commentHash}`;
-            }
-
-            setResult(TaskResult.Succeeded, resultMessage);
-        } catch (err: any) {
-            console.error(err, err.stack);
-            setResult(TaskResult.Failed, err.message);
+        if (result.conditionMet) {
+            const commentHash = await this.commentator.createComment(this.repoId, this.prId, result.context);
+            resultMessage = `Conditions successfully met. Comment hash: ${commentHash}`;
         }
+
+        setResult(TaskResult.Succeeded, resultMessage);
     };
 }
 
@@ -49,5 +44,6 @@ class TaskRunner {
         await runner.run();
     } catch (err: any) {
         console.error(err, err.stack);
+        setResult(TaskResult.Failed, err.message);
     }
 })();

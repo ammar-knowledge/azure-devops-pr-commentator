@@ -16,13 +16,14 @@ export class FileGlobValidator implements IValidator {
             return { conditionMet: true };
         }
 
-        const matchingChange = await this.getFirstMatchingChange(repositoryId, prId, this.inputs.fileGlob);
-        if (matchingChange !== undefined) {
-            console.log("Found one or more matches for the glob expression");
+        const matchingChanges = await this.getMatchingChanges(repositoryId, prId, this.inputs.fileGlob);
+        if (matchingChanges.length > 0) {
+            console.log("Found the following matches for the glob expression:\n    " +
+                matchingChanges.map(c => c.item?.path).join("\n    "));
             return {
                 conditionMet: true,
                 context: {
-                    files: [matchingChange.item?.path ?? ""]
+                    files: matchingChanges.map(change => change.item?.path ?? "")
                 }
             };
         }
@@ -31,16 +32,27 @@ export class FileGlobValidator implements IValidator {
         return { conditionMet: false };
     };
 
-    private readonly getFirstMatchingChange = async(repositoryId: string, prId: number, fileGlob: string): Promise<GitInterfaces.GitPullRequestChange | undefined> => {
+    private readonly getMatchingChanges = async(repositoryId: string, prId: number, fileGlob: string): Promise<GitInterfaces.GitPullRequestChange[]> => {
         const lastIterationId = await this.getLastIterationId(repositoryId, prId);
-        let changes: GitInterfaces.GitPullRequestIterationChanges;
-        let matchingChange: GitInterfaces.GitPullRequestChange | undefined;
+        let changes: GitInterfaces.GitPullRequestIterationChanges | undefined;
+        const matchingChanges: GitInterfaces.GitPullRequestChange[] = [];
+        const matchesGlob = (changeEntry: GitInterfaces.GitPullRequestChange): boolean =>
+            minimatch(changeEntry.item?.path ?? "", fileGlob);
+
         do {
-            changes = await this.client.getPullRequestIterationChanges(repositoryId, prId, lastIterationId);
-            matchingChange = changes.changeEntries?.find(
-                entry => minimatch(entry.item?.path ?? "", fileGlob));
-        } while (matchingChange === undefined && changes.nextTop !== undefined && changes.nextTop > 0);
-        return matchingChange;
+            changes = await this.client.getPullRequestIterationChanges(
+                repositoryId,
+                prId,
+                lastIterationId,
+                undefined,
+                changes?.nextTop,
+                changes?.nextSkip);
+
+            const matches = changes.changeEntries?.filter(matchesGlob) ?? [];
+            matchingChanges.push(...matches);
+        } while (changes.nextTop !== undefined && changes.nextTop > 0);
+
+        return matchingChanges;
     };
 
     private readonly getLastIterationId = async(repositoryId: string, prId: number): Promise<number> => {
