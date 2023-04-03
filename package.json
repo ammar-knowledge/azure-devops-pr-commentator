@@ -7,7 +7,7 @@
     "scripts": {
         "prepare": "husky install",
         "package": "npm-run-all package:prepare package:copy-to-dist package:install-deps package:create",
-        "package:prepare": "rimraf ./.task ./bin && tsc",
+        "package:prepare": "rimraf ./.task ./bin && tsc --project tsconfig.package.json",
         "package:copy-to-dist": "cpy task.json package.json package-lock.json ./.task && cpy \"./bin/**/*.js\" ./.task",
         "package:install-deps": "cd ./.task && npm clean-install --omit=dev --ignore-scripts",
         "package:create": "tfx extension create --manifests vss-extension.json",
