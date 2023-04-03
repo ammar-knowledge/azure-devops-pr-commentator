@@ -15,7 +15,7 @@ export class Commentator {
 
         const prThreads = await this.client.getThreads(repositoryId, prId);
         const existingThread = prThreads.filter(isAutoCommentThread)
-            .find(thread => thread.properties.hash.$value === commentHash);
+            .find(thread => thread.isDeleted !== true && thread.properties.hash.$value === commentHash);
 
         if (existingThread === undefined) {
             await this.createNewThread(commentHash, repositoryId, prId, context);
