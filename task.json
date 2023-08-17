@@ -3,7 +3,7 @@
     "id": "14f0b6f0-543e-4d08-9be9-95a02bd79ea4",
     "name": "PrCommentator",
     "friendlyName": "Pull Request Commentator",
-    "description": "TODO",
+    "description": "This task creates a comment if triggered by a pull request and the specified conditions are met.",
     "helpMarkDown": "",
     "category": "Utility",
     "author": "Casper Sørensen",
