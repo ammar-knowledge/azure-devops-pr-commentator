@@ -5,6 +5,21 @@ export const testInputs = new Map<string, any>();
 export const testVariables = new Map<string, any>();
 let minimatchStub: { minimatch: sinon.SinonStub<[string, string], boolean> };
 
+const adoNodeApiStubDefaults = {
+    getPersonalAccessTokenHandler: sinon.stub().callsFake((_: string) => undefined),
+    getBearerHandler: sinon.stub().callsFake((_: string) => undefined),
+    WebApi: sinon.stub().callsFake((collectionUri: string, __: any) => ({
+        getGitApi: sinon.stub().callsFake(() => undefined)
+    }))
+};
+const adoNodeApiStub = { ...adoNodeApiStubDefaults };
+
+export function rewire(moduleStubs: Map<string, any>): void {
+    for (const [module, stub] of moduleStubs) {
+        rewiremock(module).with(stub);
+    }
+}
+
 export function rewireAll(): void {
     clear();
 
@@ -18,6 +33,9 @@ export function rewireAll(): void {
 
     rewiremock("minimatch")
         .with(minimatchStub);
+
+    rewiremock("azure-devops-node-api")
+        .with(adoNodeApiStub);
 }
 
 export function clear(): void {
@@ -33,10 +51,15 @@ export function resetStubs(): void {
             minimatch: sinon.stub<[string, string], boolean>()
                 .callsFake((_: string, __: string) => false)
         });
+    modifyAdoNodeApiStub(adoNodeApiStubDefaults);
 }
 
 export function setMinimatchStub(stub: sinon.SinonStub<[string, string], boolean>): void {
     minimatchStub.minimatch = stub;
+}
+
+export function modifyAdoNodeApiStub(stub: Partial<typeof adoNodeApiStubDefaults>): void {
+    Object.assign(adoNodeApiStub, stub);
 }
 
 export async function instantiate<T>(construct: () => Promise<T>): Promise<T> {
